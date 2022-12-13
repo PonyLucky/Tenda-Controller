@@ -202,6 +202,7 @@
             <button id="popup-no">Non</button>
         </div>
     </section>
+    <script>{{SCRIPTS}}</script>
     <script>
         const plugs = document.querySelectorAll('tr.plug');
         plugs.forEach(plug => {
@@ -214,7 +215,7 @@
                 const popupYes = document.getElementById('popup-yes');
                 const popupNo = document.getElementById('popup-no');
                 popupName.innerText = plugName;
-                popupDescr.innerText = plug.getAttribute('data-state') === 'ON' ? 'Eteindre la prise ?' : 'Allumer la prise ?';
+                popupDescr.innerText = plug.getAttribute('data-state') === 'ON' ? lang["state-on"] : lang["state-off"];
                 popup.classList.remove('hide');
                 popupYes.addEventListener('click', () => {
                     fetch(`/toggle/${plugIp}/`)

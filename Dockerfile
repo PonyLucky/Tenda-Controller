@@ -10,6 +10,11 @@ COPY ./tenda_controller.py /app
 COPY ./tenda_scraper.py /app
 COPY ./tenda_controller.html /app
 COPY ./requirements.txt /app
+# Create "/lang" directory for language files
+RUN mkdir /lang
+COPY ./lang/lang.en.js /lang
+COPY ./lang/lang.fr.js /lang
+COPY ./lang/lang.js /lang
 # Create "/config" directory for config file
 RUN mkdir /config
 # Install any needed packages specified in requirements.txt
@@ -18,5 +23,6 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 CMD ["python", "tenda_controller.py"]
 # Environment variables
 ENV ROUTER_IP "192.168.1.1"
+ENV LANGUAGE "en"
 # Make port 80 available to the world outside this container
 EXPOSE 80

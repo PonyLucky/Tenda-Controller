@@ -38,6 +38,11 @@ PLUGS_PATH = "/config/plugs.json"
 PLUGS = get_plugs(path=PLUGS_PATH)
 print(f"Found {len(PLUGS)} plugs.")
 
+# LANGUAGE from environment variable
+LANGUAGE = os.environ.get("LANGUAGE")
+if LANGUAGE is None:
+    LANGUAGE = "en"
+
 # The port to listen on
 PORT = 80
 
@@ -143,9 +148,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         with open("tenda_controller.html", "r") as f:
             html = f.read()
 
-        tmp = "<!-- PLUGS -->"
+        tmp = "<!-- PLUGS -->\n"
         # Create table of plugs
-        tmp += "<table><tr><th>Nom</th><th class=\"plug-ip\">Adresse IP</th><th>Etat</th></tr>"
+        tmp += "<table><tr><th id=\"plug-name\">Nom</th><th id=\"plug-ip\" class=\"plug-ip\">Adresse IP</th><th id=\"plug-state\">Etat</th></tr>"
         # Add the plugs
         for plug in PLUGS:
             state = "UNKNOWN"
@@ -169,6 +174,16 @@ class RequestHandler(BaseHTTPRequestHandler):
             """
         tmp += "</table>"
         html = html.replace("{{PLUGS}}", tmp)
+
+        js = ""
+        # Add the language js file to the HTML
+        with open(f"/lang/lang.{LANGUAGE}.js", "r") as f:
+            js = f.read()
+        # Add 'lang/lang.js' to the HTML
+        # This file contains the script to change the language on the fly
+        with open("/lang/lang.js", "r") as f:
+            js += f.read()
+        html = html.replace("{{SCRIPTS}}", js)
 
         # Send the response
         self.send_response(200)
