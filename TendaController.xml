@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>TendaController</Name>
+  <Repository>ponylucky/tenda-controller</Repository>
+  <Registry>https://hub.docker.com/r/ponylucky/tenda-controller</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/PonyLucky/Tenda-Controller/issues</Support>
+  <Project>https://github.com/PonyLucky/Tenda-Controller</Project>
+  <Overview>This is a simple web controller for the Tenda SP9 smart plug.&#xD;
+&#xD;
+- ROUTER_IP (env variable) to force your router ip if not 192.168.1.1&#xD;
+- Serve at port 80.&#xD;
+- JSON file is located at `/config/`, add this to a volume to see it outside of the image.&#xD;
+&#xD;
+The first run may take around 10 seconds (more if you don't have a decent CPU or local network). Because the application fetchs all Tenda SP9 devices over the local network.</Overview>
+  <Category>HomeAutomation: Tools: Network:Web Status:Beta</Category>
+  <WebUI>http://[IP]:[PORT:8800]/</WebUI>
+  <TemplateURL/>
+  <Icon>https://d36jcksde1wxzq.cloudfront.net/54e48877dab8df8f92cd.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled>1670901196</DateInstalled>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI Port" Target="80" Default="8800" Mode="tcp" Description="Port to access WebUI" Type="Port" Display="always" Required="true" Mask="false">8800</Config>
+  <Config Name="Config Path" Target="/config/" Default="/mnt/user/appdata/tenda-controller/" Mode="rw" Description="Config path to access 'plugs.json'." Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/tenda-controller/</Config>
+  <Config Name="Router IP" Target="ROUTER_IP" Default="192.168.1.1" Mode="" Description="To force your Router IP if not 192.168.1.1" Type="Variable" Display="always" Required="false" Mask="false">192.168.1.1</Config>
+</Container>
