@@ -204,23 +204,33 @@
     </section>
     <script>{{SCRIPTS}}</script>
     <script>
+        // Get all rows with class plug (basically all plugs)
         const plugs = document.querySelectorAll('tr.plug');
+        // For each plug, add event listener on click
         plugs.forEach(plug => {
             plug.addEventListener('click', () => {
+                // Get plug data
                 const plugIp = plug.getAttribute('data-ip');
                 const plugName = plug.getAttribute('data-name');
+                // Get popup elements
                 const popup = document.getElementById('popup');
                 const popupName = document.getElementById('popup-name');
                 const popupDescr = document.getElementById('popup-descr');
                 const popupYes = document.getElementById('popup-yes');
                 const popupNo = document.getElementById('popup-no');
+                // Set popup text
                 popupName.innerText = plugName;
                 popupDescr.innerText = plug.getAttribute('data-state') === 'ON' ? lang["state-on"] : lang["state-off"];
+                // Show popup
                 popup.classList.remove('hide');
-                popupYes.addEventListener('click', () => {
+                // Function to call when clicking on yes or no
+                // -- Yes
+                function yesClick() {
+                    // Toggle plug state
                     fetch(`/toggle/${plugIp}/`)
                     .then(response => response.json())
                     .then(data => {
+                        // Update plug state in the DOM
                         if (data.state === 'ON') {
                             plug.setAttribute('data-state', 'ON');
                             plug.getElementsByClassName("plug-state")[0].innerHTML = "ON";
@@ -229,16 +239,35 @@
                             plug.getElementsByClassName("plug-state")[0].innerHTML = "OFF";
                         }
                     });
+                    // Hide popup
                     popup.classList.add('hide');
-                });
-                popupNo.addEventListener('click', () => {
+                    // Remove event listener
+                    popupYes.removeEventListener('click', yesClick);
+                    popupNo.removeEventListener('click', noClick);
+                }
+                // -- No
+                function noClick() {
+                    // Hide popup
                     popup.classList.add('hide');
-                });
+                    // Remove event listener
+                    popupNo.removeEventListener('click', noClick);
+                    popupYes.removeEventListener('click', yesClick);
+                }
+                // Add event listeners to popup buttons
+                // -- Yes
+                popupYes.addEventListener('click', yesClick);
+                // -- No
+                popupNo.addEventListener('click', noClick);
             });
         });
+
+        // Get refresh button
         const refresh = document.getElementById('refresh');
+        // Get refresh text
         const refreshText = document.getElementById('refresh-text');
+        // When click the refresh button
         refresh.addEventListener('click', () => {
+            // If the refresh button is not already loading
             if (refresh.classList.contains('loading') === false) {
                 // Set the status to 'loading'
                 refresh.classList.add('loading');
