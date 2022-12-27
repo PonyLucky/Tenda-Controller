@@ -55,6 +55,12 @@ class TendaPlug:
         self.name = self.get_name() if name is None else name
         self.state = self.get_state()
 
+    def __repr__(self):
+        return f"Plug {self.ip} ({self.name}), {self.state}"
+
+    def __str__(self):
+        return self.__repr__()
+
     def get_state(self):
         """
         Get the state of the plug.
@@ -115,6 +121,14 @@ class RequestHandler(BaseHTTPRequestHandler):
     We have one page main.html which is the main page.
     We have one API /toggle/IP_ADDRESS which toggles the state of the plug.
     """
+
+    def refresh_plugs(self):
+        # Remove PLUGS_PATH and refresh the plugs
+        global PLUGS
+        os.remove(PLUGS_PATH)
+        print("PLUGS_PATH removed")
+        PLUGS = get_plugs(path=PLUGS_PATH)
+        print(f"Found {len(PLUGS)} plugs")
     
     def do_GET(self):
         """
@@ -152,26 +166,38 @@ class RequestHandler(BaseHTTPRequestHandler):
         # Create table of plugs
         tmp += "<table><tr><th id=\"plug-name\">Nom</th><th id=\"plug-ip\" class=\"plug-ip\">Adresse IP</th><th id=\"plug-state\">Etat</th></tr>"
         # Add the plugs
-        for plug in PLUGS:
-            state = "UNKNOWN"
-            name = ""
+        def add_plugs(tmp):
             try:
-                plug = TendaPlug(plug['ip'], plug['name'])
-                state = plug.state
-                if state:
-                    state = "ON"
-                else:
-                    state = "OFF"
-                name = plug.name
+                for plug in PLUGS:
+                    ip = None
+                    state = "UNKNOWN"
+                    name = ""
+                    try:
+                        plug = TendaPlug(plug['ip'], plug['name'])
+                        ip = plug.ip
+                        state = plug.state
+                        if state:
+                            state = "ON"
+                        else:
+                            state = "OFF"
+                        name = plug.name
+                    except Exception as e:
+                        print(e)
+                        raise Exception("Error while getting info for ", plug)
+                    tmp += f"""
+                    <tr class="plug" data-ip="{ip}" data-state="{state}" data-name="{name}">
+                        <td class="plug-name">{name}</td>
+                        <td class="plug-ip">{ip}</td>
+                        <td class="plug-state">{state}</td>
+                    </tr>
+                    """
+                return tmp
             except Exception as e:
                 print(e)
-            tmp += f"""
-            <tr class="plug" data-ip="{plug.ip}" data-state="{state}" data-name="{name}">
-                <td class="plug-name">{name}</td>
-                <td class="plug-ip">{plug.ip}</td>
-                <td class="plug-state">{state}</td>
-            </tr>
-            """
+                print("Refreshing plugs...")
+                self.refresh_plugs()
+                add_plugs()
+        tmp += add_plugs(tmp)
         tmp += "</table>"
         html = html.replace("{{PLUGS}}", tmp)
 
@@ -221,11 +247,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         Serve the refresh API.
         """
         # Remove PLUGS_PATH and refresh the plugs
-        global PLUGS
-        os.remove(PLUGS_PATH)
-        print("PLUGS_PATH removed")
-        PLUGS = get_plugs(path=PLUGS_PATH)
-        print(f"Found {len(PLUGS)} plugs")
+        self.refresh_plugs()
 
         # Send the JSON response
         self.send_response(200)
