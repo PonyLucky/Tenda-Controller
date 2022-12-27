@@ -162,12 +162,12 @@ class RequestHandler(BaseHTTPRequestHandler):
         with open("tenda_controller.html", "r") as f:
             html = f.read()
 
-        tmp = "<!-- PLUGS -->\n"
-        # Create table of plugs
-        tmp += "<table><tr><th id=\"plug-name\">Nom</th><th id=\"plug-ip\" class=\"plug-ip\">Adresse IP</th><th id=\"plug-state\">Etat</th></tr>"
         # Add the plugs
-        def add_plugs(tmp):
+        def add_plugs():
             try:
+                tmp = "<!-- PLUGS -->\n"
+                # Create table of plugs
+                tmp += "<table><tr><th id=\"plug-name\">Nom</th><th id=\"plug-ip\" class=\"plug-ip\">Adresse IP</th><th id=\"plug-state\">Etat</th></tr>"
                 for plug in PLUGS:
                     ip = None
                     state = "UNKNOWN"
@@ -191,15 +191,14 @@ class RequestHandler(BaseHTTPRequestHandler):
                         <td class="plug-state">{state}</td>
                     </tr>
                     """
+                tmp += "</table>"
                 return tmp
             except Exception as e:
                 print(e)
                 print("Refreshing plugs...")
                 self.refresh_plugs()
                 add_plugs()
-        tmp += add_plugs(tmp)
-        tmp += "</table>"
-        html = html.replace("{{PLUGS}}", tmp)
+        html = html.replace("{{PLUGS}}", add_plugs())
 
         js = ""
         # Add the language js file to the HTML
